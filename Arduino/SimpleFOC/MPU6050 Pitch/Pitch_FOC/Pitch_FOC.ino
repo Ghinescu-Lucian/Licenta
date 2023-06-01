@@ -61,7 +61,7 @@ void setup() {
   motor.voltage_sensor_align=6;
   // jerk control using voltage voltage ramp
   // default value is 300 volts per sec  ~ 0.3V per millisecond
-  motor.PID_velocity.output_ramp = 1000;
+  motor.PID_velocity.output_ramp = 100;
 
   // velocity low pass filtering time constant
   motor.LPF_velocity.Tf = 0.01f;
@@ -69,7 +69,7 @@ void setup() {
   // angle P controller
   motor.P_angle.P =7.5;
   motor.P_angle.D = 0.01f;
-  motor.P_angle.output_ramp=1000;
+  motor.P_angle.output_ramp=100;
   motor.LPF_angle.Tf= 0.01f;
   //  maximal velocity of the position control
   motor.velocity_limit = 6;
@@ -143,9 +143,9 @@ void loop() {
   else move =0.0;
   if(target_angle > 1 || target_angle < -1) target_angle =0;
   target_angle += move;
-    Serial.print("Input:"); Serial.print(Input);Serial.println("");
-     Serial.print("Tg:"); Serial.print(target_angle);Serial.println("");
-  Serial.print("Move:"); Serial.print(move);Serial.println("");
+  //   Serial.print("Input:"); Serial.print(Input);Serial.println("");
+  //    Serial.print("Tg:"); Serial.print(target_angle);Serial.println("");
+  // Serial.print("Move:"); Serial.print(move);Serial.println("");
   last_error = error;
   timer = millis();
    }
@@ -154,7 +154,7 @@ void loop() {
   // velocity, position or voltage (defined in motor.controller)
   // this function can be run at much lower frequency than loopFOC() function
   // You can also use motor.move() and set the motor.target in the code
-  motor.move(target_angle);
+  motor.move(0.0);
  
   // 
 

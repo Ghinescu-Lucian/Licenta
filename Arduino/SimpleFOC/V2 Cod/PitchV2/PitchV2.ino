@@ -70,8 +70,8 @@ void setup() {
   driver.voltage_power_supply = 12;
   driver.init();
   motor.linkDriver(&driver);
-  motor.voltage_sensor_align = 8;
-  motor.voltage_limit = 10;
+  motor.voltage_sensor_align = 12;
+  motor.voltage_limit = 12;
 
   motor.controller = MotionControlType::angle;
   motor.foc_modulation = FOCModulationType::SinePWM;
@@ -81,17 +81,22 @@ void setup() {
   motor.PID_velocity.D = 0.01;
   // jerk control using voltage voltage ramp
   // default value is 300 volts per sec  ~ 0.3V per millisecond11
-  motor.PID_velocity.output_ramp = 300;
+  motor.PID_velocity.output_ramp = 2000;
    // velocity low pass filtering time constant
   motor.LPF_velocity.Tf = 0.01f;
   // velocity limit
-  motor.velocity_limit = 15;
+  motor.velocity_limit = 25;
 
 // angle PID
-  motor.P_angle.P = 43.2;
-  motor.P_angle.I = 80;
-  motor.P_angle.D = 0.003125f;
-  motor.P_angle.output_ramp=1000;
+  // motor.P_angle.P = 43.2;
+  // motor.P_angle.I = 80;
+  // motor.P_angle.D = 0.003125f;
+  // motor.P_angle.output_ramp=2500;
+  // motor.LPF_angle = 0.001f;
+   motor.P_angle.P = 20;
+  // motor.P_angle.I = 80;
+  // motor.P_angle.D = 0.003125f;
+  motor.P_angle.output_ramp=2500;
   motor.LPF_angle = 0.001f;
 
 // direction
@@ -117,21 +122,21 @@ void setup() {
   motor2.foc_modulation = FOCModulationType::SinePWM;
 // velocity PID
   motor2.PID_velocity.P = 0.2f;
-  motor2.PID_velocity.I = 20;
-  motor2.PID_velocity.D = 0.01;
+  motor2.PID_velocity.I = 10;
+  motor2.PID_velocity.D = 0.0;
   // jerk control using voltage voltage ramp
   // default value is 300 volts per sec  ~ 0.3V per millisecond11
-  motor2.PID_velocity.output_ramp = 250;
+  motor2.PID_velocity.output_ramp = 1000;
    // velocity low pass filtering time constant
   motor2.LPF_velocity.Tf = 0.01f;
 // velocity limit
   motor2.velocity_limit=15;  
 
 // angle PID
-  motor2.P_angle.P = 12;
-  motor2.P_angle.I = 13.3333;
-  motor2.P_angle.D = 0.01875;
-  motor2.P_angle.output_ramp=3000;
+  motor2.P_angle.P = 15;
+  motor2.P_angle.I = 0;//13.3333;
+  motor2.P_angle.D = 0;//0.01875;
+  motor2.P_angle.output_ramp=1000;
   motor2.LPF_angle.Tf=0.01f;
 
 // direction
@@ -160,14 +165,16 @@ void setup() {
   while(c){
     c--;
     mpu.update();
+    mpu.getAngleY();
     delay(10);
   }
   mpu.update();
-  Input = mpu.getAngleX();
+  Input = mpu.getAngleY();
   Setpoint = Input;
   Serial.print("Setpoint: "); Serial.println(Setpoint);
   Serial.println("Done!");
-
+  pinMode(23, OUTPUT);
+  digitalWrite(23, HIGH);
 
 }
 
@@ -181,7 +188,7 @@ void loop() {
  motor2.loopFOC();
   
    mpu.update();
-   if((millis()-timer > 20 )){
+   if((millis()-timer > 25 )){
   Input = mpu.getAngleY();
   double error = diff(Input); 
    float move;
@@ -189,7 +196,7 @@ void loop() {
   if(last_error != 0)
     error =0;
   if(error != 0){
-    move= -error/57.295; // 56.7 57.4
+    move= -error/57.2968; // 56.7 57.4
   }
 
   else move =0.0;
@@ -197,10 +204,11 @@ void loop() {
   if(move < -0.45) move=-0.45;
   if (move > 0.45) move = 0.45;
   target_angle += move;
-  if(target_angle > 0.65)  target_angle =0.65;
-  if(target_angle < -0.35) target_angle =-0.35;
+  if(target_angle > 0.60)  target_angle =0.60;
+  if(target_angle < -0.40) target_angle =-0.40;
   //   Serial.print("Input:"); Serial.print(Input);Serial.println("");
      Serial.print("Tg:"); Serial.print(target_angle);Serial.println("");
+     Serial.print("ENC:"); Serial.print(encoder.getAngle());Serial.println("");
   // Serial.print("Move:"); Serial.print(move);Serial.println("");
   last_error = error;
   timer = millis();
@@ -225,7 +233,7 @@ double diff(double x){
 
  dif = x - Setpoint;
   
- if( dif < 0.3 && dif > -0.3)
+ if( dif < 0.5 && dif > -0.5)
 
    return 0;
 

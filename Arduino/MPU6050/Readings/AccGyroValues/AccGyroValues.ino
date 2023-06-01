@@ -16,11 +16,13 @@ double accX,accY,accZ;
 double gyroX,gyroY,gyroZ;
 
 long timer = 0;
+// Commander command;
 
 void setup() {
   Serial.begin(115200);
   Wire.begin();
   Serial.print("Cv");
+  mpu.setFilterGyroCoef(0.99);
   byte status = mpu.begin();
   Serial.print(F("MPU6050 status: "));
   Serial.println(status);
@@ -28,7 +30,7 @@ void setup() {
   
   Serial.println(F("Calculating offsets, do not move MPU6050"));
   delay(1000);
- //mpu.calcOffsets(true,true); // gyro and accelero
+//  mpu.calcOffsets(true,true); // gyro and accelero
   Serial.println("Done!\n");
   
 }

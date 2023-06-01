@@ -33,42 +33,42 @@ Commander command = Commander(Serial);
 void doTarget_AP(char* cmd) {
   float ap=0;
   command.scalar(&ap, cmd);
-  Serial.println("M AP");
+  Serial.println("M Angle P");
   motor.P_angle.P=ap;
  
 }
 void doTarget_AI(char* cmd) {
   float ai=0;
   command.scalar(&ai, cmd);
-   Serial.println("M AI");
+   Serial.println("M Angle I");
   motor.P_angle.I=ai;
  
 }
 void doTarget_AD(char* cmd) {
   float ad=0;
   command.scalar(&ad, cmd);
-   Serial.println("M AD");
+   Serial.println("M Angle D");
   motor.P_angle.D=ad;
  
 }
 void doTarget_VP(char* cmd) {
   float vp=0;
   command.scalar(&vp, cmd);
-  Serial.println("M AP");
+  Serial.println("M Velocity P");
   motor.PID_velocity.P=vp;
  
 }
 void doTarget_VI(char* cmd) {
   float vi=0;
   command.scalar(&vi, cmd);
-   Serial.println("M AI");
+   Serial.println("M Velocity I");
   motor.PID_velocity.I=vi;
  
 }
 void doTarget_VD(char* cmd) {
   float vd=0;
   command.scalar(&vd, cmd);
-   Serial.println("M AD");
+   Serial.println("M Velocity D");
   motor.PID_velocity.D=vd;
  
 }
@@ -76,14 +76,14 @@ void doTarget_VD(char* cmd) {
 void doTarget_Vramp(char* cmd) {
   float ramp=0;
   command.scalar(&ramp, cmd);
-  Serial.println("V ramp");
+  Serial.println("Velocity ramp");
   motor.PID_velocity.output_ramp=ramp;
  
 }
 void doTarget_Aramp(char* cmd) {
   float aramp=0;
   command.scalar(&aramp, cmd);
-  Serial.println("V ramp");
+  Serial.println("Angle ramp");
   motor.P_angle.output_ramp=aramp;
  
 }
@@ -91,42 +91,42 @@ void doTarget_Aramp(char* cmd) {
 void doTarget_AP2(char* cmd) {
   float ap2=0;
   command.scalar(&ap2, cmd);
-  Serial.println("M AP");
+  Serial.println("M Angle P");
   motor2.P_angle.P=ap2;
  
 }
 void doTarget_AI2(char* cmd) {
   float ai2=0;
   command.scalar(&ai2, cmd);
-   Serial.println("M AI");
+   Serial.println("M Angle I");
   motor2.P_angle.I=ai2;
  
 }
 void doTarget_AD2(char* cmd) {
   float ad2=0;
   command.scalar(&ad2, cmd);
-   Serial.println("M AD");
+   Serial.println("M Angle D");
   motor2.P_angle.D=ad2;
  
 }
 void doTarget_VP2(char* cmd) {
   float vp2=0;
   command.scalar(&vp2, cmd);
-  Serial.println("M VP");
+  Serial.println("M Velocity P");
   motor2.PID_velocity.P = vp2;
  
 }
 void doTarget_VI2(char* cmd) {
   float vi2=0;
   command.scalar(&vi2, cmd);
-   Serial.println("M VI");
+   Serial.println("M Velocity I");
   motor2.PID_velocity.I=vi2;
  
 }
 void doTarget_VD2(char* cmd) {
   float vd2=0;
   command.scalar(&vd2, cmd);
-   Serial.println("M VD");
+   Serial.println("M Velocity D");
   motor2.PID_velocity.D=vd2;
  
 }
@@ -134,14 +134,14 @@ void doTarget_VD2(char* cmd) {
 void doTarget_Vramp2(char* cmd) {
   float ramp2=0;
   command.scalar(&ramp2, cmd);
-  Serial.println("A ramp");
+  Serial.println("Velocity ramp");
   motor2.PID_velocity.output_ramp=ramp2;
  
 }
 void doTarget_Aramp2(char* cmd) {
   float aramp2=0;
   command.scalar(&aramp2, cmd);
-  Serial.println("V ramp");
+  Serial.println("Angle ramp");
   motor2.P_angle.output_ramp=aramp2;
  
 }
@@ -161,7 +161,7 @@ void setup() {
   Serial.print(F("MPU6050 status: "));
   Serial.println(status);
   while(status!=0){ } // stop everything if could not connect to MPU6050
-  
+  mpu.setFilterGyroCoef(0.99);
   Serial.println(F("Calculating offsets, do not move MPU6050"));
   delay(1000);
   mpu.calcOffsets(true,true); // gyro and accelero
@@ -193,30 +193,30 @@ void setup() {
   motor.PID_velocity.I = 20;
   motor.PID_velocity.D = 0.0;
   // default voltage_power_supply
-  motor.voltage_limit = 12;
+  motor.voltage_limit = 6;
   motor.voltage_sensor_align=6;
   // jerk control using voltage voltage ramp
   // default value is 300 volts per sec  ~ 0.3V per millisecond
-  motor.PID_velocity.output_ramp = 100;
+  motor.PID_velocity.output_ramp = 1000;
 
   // velocity low pass filtering time constant
   motor.LPF_velocity.Tf = 0.01f;
 
-  motor.velocity_limit = 20;
+  motor.velocity_limit = 15;
 
   // angle P controller
-  motor.P_angle.P = 2;
+  motor.P_angle.P = 20;
   // motor.P_angle.I = 13.3333;
   // motor.P_angle.D = 0.01875;
-  motor.P_angle.output_ramp=300;
+  motor.P_angle.output_ramp=750;
   motor.LPF_angle.Tf=0.01f;
 
 
 // Initialize the motor parameters
 // &  monitoring port
  
-  motor.zero_electric_angle=3.74;
-  motor.sensor_direction=CW;
+  // motor.zero_electric_angle=3.74;
+  // motor.sensor_direction=CW;
   motor.useMonitoring(Serial);
 // initialize motor
   motor.init();
@@ -279,24 +279,24 @@ void setup() {
   _delay(500);
 
 // commands for motor 1
- command.add('ap', doTarget_AP, "target ramp");
- command.add('ai', doTarget_AI, "target ramp");
- command.add('ad', doTarget_AD, "target ramp");
- command.add('ar', doTarget_Aramp, "target ramp");
- command.add('vp', doTarget_VP, "target ramp");
- command.add('vi', doTarget_VI, "target ramp");
- command.add('vd', doTarget_VD, "target ramp");
- command.add('vr', doTarget_Vramp, "target ramp");
+ command.add('p', doTarget_AP, "target angle p");
+ command.add('i', doTarget_AI, "target angle i");
+ command.add('d', doTarget_AD, "target angle d");
+ command.add('r', doTarget_Aramp, "target a ramp");
+ command.add('P', doTarget_VP, "target v p");
+ command.add('I', doTarget_VI, "target v i");
+ command.add('D', doTarget_VD, "target v d");
+ command.add('R', doTarget_Vramp, "target v ramp");
 
 // commands for motor 2
- command.add('a2p', doTarget_AP2, "target ramp");
- command.add('a2i', doTarget_AI2, "target ramp");
- command.add('a2d', doTarget_AD2, "target ramp");
- command.add('a2r', doTarget_Aramp2, "target ramp");
- command.add('v2p', doTarget_VP2, "target ramp");
- command.add('v2i', doTarget_VI2, "target ramp");
- command.add('v2d', doTarget_VD2, "target ramp");
- command.add('v2r', doTarget_Vramp2, "target ramp");
+ command.add('o', doTarget_AP2, "target2 angle p");
+ command.add('n', doTarget_AI2, "target2 angle i");
+ command.add('e', doTarget_AD2, "target2 angle d");
+ command.add('a', doTarget_Aramp2, "target2 a ramp");
+ command.add('O', doTarget_VP2, "target2 v p");
+ command.add('N', doTarget_VI2, "target2 v i");
+ command.add('E', doTarget_VD2, "target2 v d");
+ command.add('A', doTarget_Vramp2, "target2 v ramp");
 
   // incep comunicatia cu MPU6050
   
@@ -328,7 +328,7 @@ float last_error_pitch= 0.0;
 unsigned long timer = 0;
 double last_angle_roll = 0;
 double last_angle_pitch = 0;
-float max_move_roll = 0.5;
+float max_move_roll = 0.7;
 float max_move_pitch_hg = 0.5;
 float max_move_pitch_lw = -0.35;
 
@@ -339,8 +339,9 @@ void loop() {
   
    mpu.update();
   //  mpu.update();
-   if((millis()-timer > 25 )){
+   if((millis()-timer > 25 ) ){
      // roll error
+     if( abs( encoder.getVelocity() ) < 2.5) {
         Input_roll = mpu.getAngleX();
         double error_roll = diff_roll(Input_roll); 
         float move_roll;
@@ -358,19 +359,33 @@ void loop() {
         target_angle_roll += move_roll;
         if(target_angle_roll > max_move_roll ) target_angle_roll = max_move_roll;
         if( target_angle_roll < -max_move_roll)  target_angle_roll = -max_move_roll;
-        if(abs(target_angle_roll - last_angle_roll) > 0.15){
-          target_angle_roll = target_angle_roll/2;
-          Serial.print("Depasire!");
-        }
+        // float dif = abs(target_angle_roll - last_angle_roll);
+        // if(dif > 0.2){
+        //   if(last_angle_roll < target_angle_roll)
+        //     target_angle_roll = last_angle_roll - 0.1;
+        //   else 
+        //     target_angle_roll = last_angle_roll + 0.1;
+          // float coef = dif / 0.15 ;
+          // float mv = coef * 0.07;
+          // if(last_angle_roll  > target_angle_roll)
+          //   target_angle_roll = target_angle_roll+mv;
+          // else
+          //   target_angle_roll = target_angle_roll-mv;
+          // target_angle_roll = last_angle_roll;
+        //   Serial.print("Depasire!");
+        // }
         // mpu.gets
-        // Serial.print("Input:"); Serial.print(Input);Serial.println("");     
-        Serial.print("Tg_roll:"); Serial.print(target_angle_roll);Serial.println(""); //Serial.print("TgLast:"); Serial.print(last_angle);Serial.println("");
+        // Serial.print("Input:"); Serial.print(Input);Serial.println("");   
+         Serial.print("AngleX:"); Serial.print(mpu.getAngleX()); Serial.print(",");
+  Serial.print("AngleY:"); Serial.print(mpu.getAngleY()); Serial.print(",");  
+        // Serial.print("Tg_roll:"); Serial.print(target_angle_roll);Serial.println(""); //Serial.print("TgLast:"); Serial.print(last_angle);Serial.println("");
         // Serial.print("Move:"); Serial.print(move);Serial.println("");
 
 
         last_error_roll = error_roll;
         last_angle_roll=target_angle_roll;
-
+     }
+     if( abs(encoder2.getVelocity() )  < 2) {
         // error pitch
         Input_pitch = mpu.getAngleY();
         double error_pitch = diff_pitch(Input_pitch); 
@@ -393,11 +408,12 @@ void loop() {
           // Serial.print("Tg:"); Serial.print(target_angle);Serial.println("");
         // Serial.print("Move:"); Serial.print(move);Serial.println("");
         last_error_pitch = error_pitch;
+     }
             
         timer = millis();
   }
 
-//  motor.move(0);
+//  motor.move(0.0);
  motor.move(target_angle_roll);
 
  motor2.move(target_angle_pitch);
@@ -416,7 +432,7 @@ double diff_roll(double x){
 
  dif = x - Setpoint_roll;
   
- if( dif < 1.3 && dif > -1.3)
+ if( dif < 0.8 && dif > -0.8)
 
    return 0;
 
@@ -429,7 +445,7 @@ double diff_pitch(double x){
 
  dif = x - Setpoint_pitch;
   
- if( dif < 0.3 && dif > -0.3)
+ if( dif < 0.5 && dif > -0.5)
 
    return 0;
 

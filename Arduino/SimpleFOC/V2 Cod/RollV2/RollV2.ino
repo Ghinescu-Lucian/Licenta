@@ -108,6 +108,56 @@ void setup() {
   mpu.calcOffsets(true,true); // gyro and accelero
   Serial.println("Done!\n");
 
+/*
+ encoder.init();
+  // hardware interrupt enable
+  encoder.enableInterrupts(doA, doB);
+  // link the motor to the sensor
+  motor.linkSensor(&encoder);
+
+  // power supply voltage
+  // default 12V
+  driver.voltage_power_supply = 12;
+  driver.init();
+ 
+  motor.linkDriver(&driver);
+
+  // motor.foc_modulation = FOCModulationType::SinePWM;
+
+
+  // initialize motor
+ motor.init();
+  // monitoring port
+  motor.useMonitoring(Serial);
+   // set FOC loop to be used
+  motor.controller = MotionControlType::angle;
+
+   motor.PID_velocity.P = 0.2f;//0.2f;
+  motor.PID_velocity.I = 20;
+  motor.PID_velocity.D = 0.0;
+  // default voltage_power_supply
+  motor.voltage_limit = 6;
+  motor.voltage_sensor_align=6;
+  // jerk control using voltage voltage ramp
+  // default value is 300 volts per sec  ~ 0.3V per millisecond
+  motor.PID_velocity.output_ramp = 1000;
+
+  // velocity low pass filtering time constant
+  motor.LPF_velocity.Tf = 0.01f;
+
+  // angle P controller
+  motor.P_angle.P =7.5;
+  motor.P_angle.D = 0.01f;
+  motor.P_angle.output_ramp=1000;
+  motor.LPF_angle.Tf= 0.01f;
+  //  maximal velocity of the position control
+  motor.velocity_limit = 6;
+
+
+
+  motor.initFOC();
+*/
+
  encoder.init();
   // hardware interrupt enable
   encoder.enableInterrupts(doA, doB);
@@ -130,16 +180,17 @@ void setup() {
   motor.useMonitoring(Serial);
    // set FOC loop to be used
   motor.controller = MotionControlType::angle;
+  //  motor.controller = MotionControlType::angle_openloop;
 
    motor.PID_velocity.P = 0.2f;//0.2f;
-  motor.PID_velocity.I = 20;
+  motor.PID_velocity.I = 10;
   motor.PID_velocity.D = 0.0;
   // default voltage_power_supply
-  motor.voltage_limit = 12;
+  motor.voltage_limit = 6;
   motor.voltage_sensor_align=6;
   // jerk control using voltage voltage ramp
   // default value is 300 volts per sec  ~ 0.3V per millisecond
-  motor.PID_velocity.output_ramp = 150;
+  motor.PID_velocity.output_ramp = 1000;
 
   // velocity low pass filtering time constant
   motor.LPF_velocity.Tf = 0.01f;
@@ -150,19 +201,20 @@ void setup() {
   // motor.P_angle.output_ramp=1000;
   // motor.LPF_angle.Tf= 0.01f;
   //  maximal velocity of the position control
-  motor.velocity_limit = 15;
+  motor.velocity_limit = 25;
 
   // angle P controller
- motor.P_angle.P = 12;
-  motor.P_angle.I = 13.3333;
-  motor.P_angle.D = 0.01875;
-  motor.P_angle.output_ramp=300;
+//  motor.P_angle.P = 12;
+//   motor.P_angle.I = 13.3333;
+//   motor.P_angle.D = 0.01875;
+//   motor.P_angle.output_ramp=300;
+
+  motor.P_angle.P = 20;
+//   motor.P_angle.I = 13.3333;
+//   motor.P_angle.D = 0.01875;
+  motor.P_angle.output_ramp=750;
   motor.LPF_angle.Tf=0.01f;
-  // motor.P_angle.P = 12;
-  // motor.P_angle.I = 13.3333;
-  // motor.P_angle.D = 0.01875;
-  // motor.P_angle.output_ramp=1000;
-  // motor.LPF_angle.Tf=0.01f;
+
   
 
 
@@ -183,6 +235,7 @@ encoder2.init();
   motor2.voltage_limit = 10;
 
   motor2.controller = MotionControlType::angle;
+  //  motor2.controller = MotionControlType::angle_openloop;
   motor2.foc_modulation = FOCModulationType::SinePWM;
 
 //  Velocity PID
@@ -255,6 +308,8 @@ encoder2.init();
   Serial.println(Setpoint);
     motor.useMonitoring(Serial);
    Serial.println("Done!\n");
+   pinMode(23,OUTPUT);
+   digitalWrite(23, HIGH);
 
 }
 
@@ -262,56 +317,88 @@ float target_angle =0.0;
 float last_error=0.0;
 unsigned long timer = 0;
 double last_angle=0;
-float max_move=0.5;
+float max_move=0.7;
+int ok=0;
 
 void loop() {
  
  motor.loopFOC();
-//  motor2.loopFOC();
-  
-   mpu.update();
+ motor2.loopFOC();
+  // ok++;
+  // if(ok%3 ==0){
+  //   ok=1;
+    mpu.update();
+  // }
+   
   //  mpu.update();
-   if((millis()-timer > 25 )){
-        Input = mpu.getAngleX();
-        double error = diff(Input); 
-        float move;
-        //  if( abs( error - last_error) < 0.001)
-        if(last_error != 0)
-          error =0;
-        if(error != 0){
-          // move= -error/57.296; // 56
-          move = -error/56;
-        }
-        else move =0.0;
-        
-        if(move < -max_move )  move=-max_move;
-        if( move > max_move) move =max_move;
-        target_angle += move;
-        if(target_angle > max_move ) target_angle =max_move;
-        if( target_angle < -max_move)  target_angle = -max_move;
-        if(abs(target_angle - last_angle) > 0.25){
-          target_angle=target_angle/2;
-        }
-        // mpu.gets
-        // Serial.print("Input:"); Serial.print(Input);Serial.println("");     
-        // Serial.print("Tg:"); Serial.print(target_angle);Serial.println(""); Serial.print("TgLast:"); Serial.print(last_angle);Serial.println("");
-        // Serial.print("Move:"); Serial.print(move);Serial.println("");
+   if((millis()-timer > 15 ) ) {
+    if( abs(encoder.getVelocity()) < 2.5){
+            Input = mpu.getAngleX();
+            double enc_dif = abs(target_angle - encoder.getPreciseAngle());
+            if(enc_dif < 0.075){
+                  double error = diff(Input);
+                  // motor.loopFOC(); 
+                  // motor2.loopFOC();
+                  float move;
+                  //  if( abs( error - last_error) < 0.001)
+                  if(last_error != 0)
+                    error =0;
+                  if(error != 0){
+                    // move= -error/57.296; // 56
+                    move = -error/57.2968;
+                  }
+                  else move =0.0;
+                  
+                  if(move < -max_move )  move=-max_move;
+                  if( move > max_move) move =max_move;
+                  target_angle += move;
+                  if(target_angle > max_move ) target_angle =max_move;
+                  if( target_angle < -max_move)  target_angle = -max_move;
+                  double df = target_angle - last_angle;
 
-        last_error = error;
-        last_angle=target_angle;
-       
+                  // while( df > 0.05 || df < -0.05){
+                    // if( df > 0.07 || df < -0.07)
+                    // target_angle = target_angle * 0.5;
+                    // target_angle = target_angle * 0.5;
+                    // if( target_angle < 0 && last_angle < 0 && last_angle > target_angle )
+                    //      target_angle = target_angle+0.05f;
+                    // else if( target_angle < 0 && last_angle < 0 && last_angle < target_angle )
+                    //       target_angle = target_angle+0.05f;
+                    // else if( target_angle > 0 && last_angle > 0 && last_angle < target_angle )
+                    //       target_angle = target_angle-0.05f;
+                    // else if( target_angle > 0 && last_angle > 0 && last_angle > target_angle )
+                    //       target_angle = target_angle+0.05f;
+                    // else 
+                    //       target_angle -= 0.05;
+
+                    // df = target_angle - last_angle;
+                  // }
+                  // if(abs(target_angle - last_angle) > 0.05){
+                  //   target_angle=target_angle/2;
+                    
+                  // }
+                  // mpu.gets
+                  // Serial.print("Input:"); Serial.print(Input,5);Serial.println("");     
+                  // Serial.print("Tg:"); Serial.print(target_angle);Serial.println(""); Serial.print("TgLast:"); Serial.print(last_angle);Serial.println("");
+                  // Serial.print("Move:"); Serial.print(move);Serial.println("");
+
+                  last_error = error;
+                  last_angle=target_angle;
+            }
+        }
         timer = millis();
   }
 
  motor.move(target_angle);
-//  motor2.move(0.0);
+
+  motor2.move(0.0);
+ 
   // Motion control function
   // velocity, position or voltage (defined in motor.controller)
   // this function can be run at much lower frequency than loopFOC() function
   // You can also use motor.move() and set the motor.target in the code
-  
- 
-command.run();
+
+// command.run();
 
 }
 
@@ -320,7 +407,7 @@ double diff(double x){
 
  dif = x - Setpoint;
   
- if( dif < 2.3 && dif > -2.3)
+ if( dif < 0.8 && dif > -0.8)
 
    return 0;
 
