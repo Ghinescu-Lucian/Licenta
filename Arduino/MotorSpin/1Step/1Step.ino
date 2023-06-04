@@ -4,7 +4,7 @@ int phase2 = 10;
 int phase3 = 11;
 int speed = 10;
 int direction = -1;
-int contor =0;
+
 // 1 = forward , -1 = backward
 
 
@@ -37,10 +37,9 @@ void loop(){
   
   
 }
-
+int contor =0;
 void rotateMotor(){
-
-contor=contor+1;
+  contor=contor+1;
   if(direction == 1){
    if(contor % 2 == 0){
       digitalWrite(phase1, HIGH); delay(speed);
@@ -52,11 +51,8 @@ contor=contor+1;
       digitalWrite(phase3, HIGH); delay(speed);
       digitalWrite(phase2, LOW); delay(speed);
    }
-     
-
   }
  else{
-
    if(contor%2==0){
 
       digitalWrite(phase1, LOW); delay(speed);
@@ -67,10 +63,7 @@ contor=contor+1;
       digitalWrite(phase1, HIGH); delay(speed);
       digitalWrite(phase2, LOW); delay(speed);
       digitalWrite(phase3, HIGH); delay(speed);
-   }
-      
-      
-    
+   }  
   }
 
 }

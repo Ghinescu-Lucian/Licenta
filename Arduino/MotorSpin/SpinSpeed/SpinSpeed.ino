@@ -14,7 +14,7 @@ void setup() {
   pinMode(phase3, OUTPUT);
   Serial.begin(9600);
 }
-
+int speed = 7 ; 
 void loop(){
   // Serial.println("Contor: "+contor);
   // if(contor!= 300){
