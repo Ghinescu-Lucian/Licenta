@@ -174,6 +174,7 @@ encoder2.init();
 
   motor2.voltage_sensor_align = 8;
   motor2.voltage_limit = 10;
+  // motor.voltage_power_supply = 12;
 
   motor2.controller = MotionControlType::angle;
   //  motor2.controller = MotionControlType::angle_openloop;
