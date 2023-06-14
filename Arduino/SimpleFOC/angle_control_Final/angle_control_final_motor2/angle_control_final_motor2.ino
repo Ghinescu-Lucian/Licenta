@@ -71,7 +71,7 @@ void doTargetD(char* cmd) {
 void setup() {
 
   // use monitoring with serial
-  Serial.begin(115200);
+  Serial.begin(9600);
  
 
   // initialize encoder sensor hardware
@@ -219,18 +219,19 @@ void loop() {
   // Bluepill loop ~10kHz
   motor.loopFOC();
   motor2.loopFOC();
-  cnt++;
+  // cnt++;
   // mpu.update();
   // if(millis()-timer >50){
   //   target_angle=-target_angle;
   //   timer=millis();
   // }
-  if(cnt%25 == 0 ){
-    cnt = 0;
+  if(millis()-timer > 25 ){
+    // cnt = 0;
     
     // Serial.print("Pitch:"); Serial.print((pitch_point - mpu.getAngleX())); Serial.print(",");
     // Serial.print("Roll:"); Serial.print((roll_point - mpu.getAngleY())); Serial.println(",");
-     Serial.print("ENC:"); Serial.print(encoder.getPreciseAngle()); Serial.println(",");
+     Serial.print("ENC:"); Serial.print(encoder.getPreciseAngle(),6); Serial.println(",");
+     timer = millis();
     
   }
  
@@ -239,7 +240,7 @@ void loop() {
   // this function can be run at much lower frequency than loopFOC() function
   // You can also use motor.move() and set the motor.target in the code
   motor.move(target_angle);
-  motor2.move(0);
+  // motor2.move(0);
 
 
 

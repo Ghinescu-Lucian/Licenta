@@ -29,7 +29,7 @@ void setup() {
   Serial.print(F("MPU6050 status: "));
   Serial.println(status);
   while(status!=0){ } // stop everything if could not connect to MPU6050
-  int c=1000;
+  int c=10;
   while(c>0){
     c--;
     mpu.update();
@@ -70,7 +70,7 @@ ok++;
   anglex = mpu.getAngleX();
   angley = mpu.getAngleY();
   // Serial.print("AngleX:"); Serial.print(mpu.getAngleX()); Serial.print(",");
-  Serial.print("AngleY:"); Serial.print(mpu.getAngleY()); Serial.print(",");
+  Serial.print("AngleY: "); Serial.print(mpu.getAngleY()); Serial.print(",");
   // Serial.print("AngleZ:"); Serial.print(mpu.getAngleZ());Serial.print(",");
  
 
@@ -99,8 +99,8 @@ ok++;
  }
   //  Serial.print("Min_AngX:"); Serial.print(minX); Serial.print(",");
   // Serial.print("Max_AngX:"); Serial.print(maxX); Serial.print(",");
-   Serial.print("Min_AngY:"); Serial.print(minY); Serial.print(",");
-  Serial.print("Max_AngY:"); Serial.print(maxY); Serial.print(",");
+  //  Serial.print("Min_AngY:"); Serial.print(minY); Serial.print(",");
+  // Serial.print("Max_AngY:"); Serial.print(maxY); Serial.print(",");
 
   Serial.println("");
    
